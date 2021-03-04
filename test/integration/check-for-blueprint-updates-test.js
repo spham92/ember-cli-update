@@ -5,16 +5,15 @@ const { expect } = require('../helpers/chai');
 const checkForBlueprintUpdates = require('../../src/check-for-blueprint-updates');
 const { initBlueprint } = require('../helpers/blueprint');
 const loadSafeBlueprintFile = require('../../src/load-safe-blueprint-file');
-const { promisify } = require('util');
-const tmpDir = promisify(require('tmp').dir);
+const { createTmpDir } = require('../../src/tmp');
 
 describe(checkForBlueprintUpdates, function() {
-  this.timeout(30 * 1000);
+  this.timeout(30e3);
 
   let tmpPath;
 
   beforeEach(async function() {
-    tmpPath = await tmpDir();
+    tmpPath = await createTmpDir();
   });
 
   it('works', async function() {

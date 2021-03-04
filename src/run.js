@@ -1,12 +1,20 @@
 'use strict';
 
-const { promisify } = require('util');
-const exec = promisify(require('child_process').exec);
-const debug = require('debug')('ember-cli-update');
+const execa = require('execa');
+const debug = require('./debug');
 
-module.exports = async function run(command, options) {
-  debug(command);
-  let { stdout } = await exec(command, options);
-  debug(stdout);
-  return stdout;
+function spawn(bin, args = [], options) {
+  debug(bin, ...args.map(arg => `"${arg}"`), options);
+
+  let ps = execa(...arguments);
+
+  ps.stdout.on('data', data => {
+    debug(data.toString());
+  });
+
+  return ps;
+}
+
+module.exports = {
+  spawn
 };

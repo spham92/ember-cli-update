@@ -16,7 +16,7 @@ const {
   assertCodemodRan
 } = require('../helpers/assertions');
 const { initBlueprint } = require('../helpers/blueprint');
-const run = require('../../src/run');
+const { spawn } = require('../../src/run');
 const loadSafeBlueprintFile = require('../../src/load-safe-blueprint-file');
 const overwriteBlueprintFiles = require('../../src/overwrite-blueprint-files');
 const { defaultTo } = require('../../src/constants');
@@ -26,7 +26,7 @@ const down = '\u001b[B';
 const enter = '\n';
 
 describe(function() {
-  this.timeout(30 * 1000);
+  this.timeout(30e3);
 
   let tmpPath;
 
@@ -98,6 +98,7 @@ describe(function() {
       ];
     }
     if (blueprint) {
+      // Keep this to `-b` to test the short alias
       args.push(`-b=${blueprint}`);
     }
     if (from) {
@@ -144,9 +145,9 @@ describe(function() {
 
   it('runs codemods', async function() {
     if (process.platform === 'darwin') {
-      this.timeout(1.5 * 60 * 1000);
+      this.timeout(1.5 * 60e3);
     } else {
-      this.timeout(60 * 1000);
+      this.timeout(60e3);
     }
 
     async function _merge(src, dest) {
@@ -387,7 +388,7 @@ describe(function() {
   });
 
   it('can install an addon with a default blueprint and a state file', async function() {
-    this.timeout((process.platform === 'darwin' ? 3 : 1) * 60 * 1000);
+    this.timeout((process.platform === 'darwin' ? 3 : 1) * 60e3);
 
     let {
       location
@@ -408,7 +409,7 @@ describe(function() {
           relativeDir: location
         });
 
-        await run('npm install', { cwd: tmpPath });
+        await spawn('npm', ['install'], { cwd: tmpPath });
       }
     });
 
@@ -428,7 +429,7 @@ describe(function() {
   });
 
   it('can update a legacy addon blueprint', async function() {
-    this.timeout(5 * 60 * 1000);
+    this.timeout(5 * 60e3);
 
     let {
       name,
@@ -471,7 +472,7 @@ describe(function() {
   // in existing npm addons
   // https://github.com/salsify/ember-cli-dependency-lint/blob/v1.0.3/lib/commands/dependency-lint.js#L5
   it('can update a npm addon blueprint with implicit peer dep', async function() {
-    this.timeout(5 * 60 * 1000);
+    this.timeout(5 * 60e3);
 
     let {
       name,

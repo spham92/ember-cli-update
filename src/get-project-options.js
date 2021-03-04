@@ -1,9 +1,16 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs-extra');
 const isDefaultBlueprint = require('./is-default-blueprint');
+const hasYarn = require('./has-yarn');
 
+/**
+ * Determine if project is a `addon`, `app`, or `glimmer` type
+ *
+ * @param {function} checkForDep - Function that will check if dependency exists in `devDependencies` or `dependencies`
+ * attribute of `package.json`
+ * @param {array} keywords - Array of strings of the `keywords` attribute from `package.json`
+ * @returns {string}
+ */
 function getProjectType(checkForDep, keywords) {
   let isAddon = keywords && keywords.indexOf('ember-addon') !== -1;
 
@@ -26,6 +33,16 @@ function getProjectType(checkForDep, keywords) {
   throw new Error('Ember CLI project type could not be determined');
 }
 
+
+/**
+ * Determine what kind of ember flavor this project is and if it uses yarn or npm
+ *
+ * @param {array} keywords - the `keywords` attribute from a `package.json`
+ * @param {object} dependencies - the `dependencies` attribute from a `package.json`
+ * @param {object} devDependencies - the `devDependencies` attribute  from a `package.json`
+ * @param {object} blueprint - Expected to contain `packageName` and `name`
+ * @returns {Promise<[string]|string[]>} - Array of strings containing keywords
+ */
 module.exports = async function getProjectOptions({
   keywords,
   dependencies,
@@ -47,11 +64,7 @@ module.exports = async function getProjectOptions({
 
   let cwd = process.cwd();
 
-  let isYarn;
-  try {
-    await fs.access(path.join(cwd, 'yarn.lock'), fs.constants.F_OK);
-    isYarn = true;
-  } catch (err) {}
+  let isYarn = await hasYarn(cwd);
 
   if (isYarn) {
     options.push('yarn');

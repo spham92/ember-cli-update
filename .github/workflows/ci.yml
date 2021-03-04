@@ -15,7 +15,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - uses: actions/setup-node@v2
 
     - run: npm ci
     - run: npm run lint
@@ -46,7 +46,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node }}
 
@@ -58,11 +58,11 @@ jobs:
       timeout-minutes: 15
       env:
         NODE_LTS: ${{ matrix.node != '*' }}
-        DEBUG: ember-cli-update,boilerplate-update,git-diff-apply,git-fixtures
+        DEBUG: ember-cli-update,boilerplate-update,git-diff-apply
 
   ember-cli-update:
     needs: test
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
 
     runs-on: ubuntu-latest
 
@@ -71,7 +71,7 @@ jobs:
       with:
         ref: ${{ github.head_ref }}
         token: ${{ secrets.GitHubToken }}
-    - uses: actions/setup-node@v1
+    - uses: actions/setup-node@v2
     - uses: kellyselden/ember-cli-update-action@v2
       with:
         autofix_command: npm run lint -- --fix
